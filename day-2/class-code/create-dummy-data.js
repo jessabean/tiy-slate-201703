@@ -11,17 +11,18 @@ function makeNewGame() {
 }
 // game is argument that is passed to second `then` below
 
-mkdir('./sandwich')
-  .then(() => makeNewGame()) // returns a new TicTacToeGame()
-  .then(game => game.toJson()) // takes the game and returns json stringified
-  .then(json => { fileName: `${new Date().valueOf()}.json`, data: json }) 
-  // returns object with fileName key & data key
-  // equivalent to:
-  //
-  // .then((json) => {
-  //   return {
-  //     fileName: `${new Date().valueOf()}.json`,
-  //     data.json
-  //   };
-  // })
-  .then(({ fileName, data }) => writeFile(fileName, data)) // writes the file
+let promise = mkdir('./sandwich');
+
+for (let i of [1, 2]) { // add chain of file creation twice
+  promise = promise
+    .then(() => makeNewGame()) // returns a new TicTacToeGame()
+    .then(game => game.toJson()) // takes the game and returns json stringified
+    .then((json) => {
+       return {
+         fileName: `${new Date().valueOf()}.json`,
+         data: json
+       };
+     })
+     .then(({ fileName, data }) => writeFile(fileName, data)) // writes the file
+}
+promise.catch(err => console.error(err));
