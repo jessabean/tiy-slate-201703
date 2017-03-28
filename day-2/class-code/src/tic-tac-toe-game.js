@@ -1,4 +1,4 @@
-class Board {
+class Board {  
   constructor(empty) {
     this._empty = empty;
     this._state = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -18,6 +18,10 @@ class Board {
 
   isEmpty() {
     return this._state.every(x => x === 0);
+  }
+
+  get state() {
+    return this._state.slice();
   }
 
   get winner() {
@@ -102,6 +106,13 @@ class Singularity {
 }
 
 class TicTacToeGame {
+  static fromJson(json) {
+    let data = JSON.parse(json);
+    let game = new TicTacToeGame({humanFirst: data.humanFirst});
+    game._board._state = data.board;
+    return game;
+  }
+
   constructor({ humanFirst: hf } = { humanFirst: true }) {
     this._humanIndex = hf ? 1 : 2;
     this._computerIndex = hf ? 2 : 1;
@@ -128,6 +139,15 @@ class TicTacToeGame {
 
   get winner() {
     return this.board.winner;
+  }
+
+  toJson() {
+    return JSON.stringify({
+      isOver: this.isOver(),
+      winner: this.winner || null,
+      humanFirst: this.humanFirst,
+      board: this.board.state
+    });
   }
 
   _letComputerMakeMove() {

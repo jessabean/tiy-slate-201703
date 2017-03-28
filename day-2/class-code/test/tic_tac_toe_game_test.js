@@ -133,4 +133,30 @@ describe('Tic Tac Toe Game', () => {
 
     expect(game._board._state.some(x => x === 1)).to.equal(false);
   });
+
+  it ('returns the board state in JSON', () => {
+    let game = new TicTacToeGame({ humanFirst: false });
+    game.board._state = [2, 2, 0,
+                          0, 0, 0,
+                          0, 0, 0];
+
+    let jsonVersion = JSON.parse(game.toJson());
+
+    expect(jsonVersion.isOver).to.equal(false);
+    expect(jsonVersion.winner).to.equal(null);
+    expect(jsonVersion.humanFirst).to.equal(false);
+    expect(jsonVersion.board).to.deep.equal([2, 2, 0, 0, 0, 0,0, 0, 0]);
+  });
+
+  it ('loads the board state from JSON', () => {
+    let game = new TicTacToeGame({ humanFirst: false });
+    game.board._state = [2, 2, 0,
+                          0, 0, 0,
+                          0, 0, 0];
+
+    let loadedGame = TicTacToeGame.fromJson(game.toJson());
+
+    // assert that game and loadedGame have the same values
+    expect(loadedGame.humanFirst).to.equal(game.humanFirst);
+  });
 });
