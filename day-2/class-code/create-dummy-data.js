@@ -1,22 +1,27 @@
 let TicTacToeGame = require('./src/tic-tac-toe-game');
 let fs = require('fs');
+let Promise = require('bluebird');
+let writeFile = Promise.promisify(fs.writeFile);
+let mkdir = Promise.promisify(fs.mkdir);
 
-fs.mkdir('./sandwich', err => {
+function makeNewGame() {
   let game = new TicTacToeGame();
   game.play(2, 0);
-  let json = game.toJson();
+  return game;  
+}
+// game is argument that is passed to second `then` below
 
-  let fileName = Math.floor(Math.random() * 10000);
-
-  fs.writeFile(`./sandwich/${fileName}.json`, json, err => {
-    let game = new TicTacToeGame();
-    game.play(0, 0);
-    let json = game.toJson();
-
-    let fileName = Math.floor(Math.random() * 10000);
-
-    fs.writeFile(`./sandwich/${fileName}.json`, json, err => {
-      console.log('Thanks');
-    });
-  });
-});
+mkdir('./sandwich')
+  .then(() => makeNewGame()) // returns a new TicTacToeGame()
+  .then(game => game.toJson()) // takes the game and returns json stringified
+  .then(json => { fileName: `${new Date().valueOf()}.json`, data: json }) 
+  // returns object with fileName key & data key
+  // equivalent to:
+  //
+  // .then((json) => {
+  //   return {
+  //     fileName: `${new Date().valueOf()}.json`,
+  //     data.json
+  //   };
+  // })
+  .then(({ fileName, data }) => writeFile(fileName, data)) // writes the file
