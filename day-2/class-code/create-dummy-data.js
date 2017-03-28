@@ -1,8 +1,22 @@
 let TicTacToeGame = require('./src/tic-tac-toe-game');
 let fs = require('fs');
-let Promise = require('bluebird');
-let writeFile = Promise.promisify(fs.writeFile);
-let mkdir = Promise.promisify(fs.mkdir);
+let BBPromise = require('bluebird');
+let writeFile = BBPromise.promisify(fs.writeFile);
+
+let mkdir = function(path) {
+  return new Promise((good, bad) => {
+    fs.mkdir(path, err => {
+      if (err && err.code !== 'EEXIST') {
+        // if you just run bad(), it can still exit if statement and then good() can run too
+        // e.g., `bad(err);`
+        // so it is better/idiomatic to `return bad(err);`
+        // to guarantee that there is a break
+        return bad(err);
+      }
+      good();
+    });
+  });
+};
 
 function makeNewGame() {
   let game = new TicTacToeGame();
@@ -19,7 +33,7 @@ for (let i of [1, 2]) { // add chain of file creation twice
     .then(game => game.toJson()) // takes the game and returns json stringified
     .then((json) => {
        return {
-         fileName: `${new Date().valueOf()}.json`,
+         fileName: `./sandwich/${new Date().valueOf()}.json`,
          data: json
        };
      })
