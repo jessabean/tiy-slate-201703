@@ -22,10 +22,6 @@ function addToGamesList(game) {
   return games;
 }
 
-function readGameFile(file) {
-  return readFile(`./sandwich/${file}`);
-}
-
 readdir('./sandwich')
   .then(files => {
     let processedGames = [];
